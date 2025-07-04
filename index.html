@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World Clock - Joana Inacio</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.37/moment-timezone-with-data-1970-2030.min.js"></script>
+
+    <style>
+      body {
+        background-color: #f9f7fe;
+        font-family: sans-serif;
+      }
+      h1 {
+        text-align: center;
+        font-family: sans-serif;
+        font-size: 36px;
+      }
+      h2 {
+        margin: 0 0 5px;
+        font-size: 28px;
+      }
+      select {
+        display: block;
+        width: 100%;
+        font-size: 18px;
+        border-radius: 4px;
+        padding: 10px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 60px auto;
+        background: white;
+        padding: 30px;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+        border-radius: 10px;
+      }
+      .city {
+        display: flex;
+        margin: 10px 0;
+        justify-content: space-between;
+        padding: 30px 0;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
+      }
+      .city:last-child {
+        border: none;
+      }
+      .date {
+        opacity: 0.7;
+      }
+      .time {
+        font-size: 48px;
+        font-weight: bold;
+      }
+      .time small {
+        font-size: 24px;
+        vertical-align: middle;
+        line-height: 48px;
+      }
+      footer {
+        text-align: center;
+        font-size: 18px;
+        color: rgba(0, 0, 0, 0.8);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>World Clock</h1>
+
+      <select id="city">
+        <option value="">Select a city..</option>
+        <option value="current">My current location</option>
+        <option value="Europe/Lisbon">Lisbon &#x1F1F5;&#x1F1F9;</option>
+        <option value="Europe/London">London &#x1F1EC;&#x1F1E7;</option>
+        <option value="America/New_York">New York &#x1F1FA;&#x1F1F8;</option>
+      </select>
+
+      <div id="cities">
+        <div class="city" id="lisbon">
+          <div>
+            <h2>Lisbon &#x1F1F5;&#x1F1F9;</h2>
+            <div class="date"></div>
+          </div>
+          <div class="time"></div>
+        </div>
+        <div class="city" id="paris">
+          <div>
+            <h2>Paris &#x1F1EB;&#x1F1F7;</h2>
+            <div class="date"></div>
+          </div>
+          <div class="time"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      This project was coded with ❤️ by
+      <strong
+        ><a href="https://github.com/JoanaInacio" target="_blank"
+          >Joana Inacio</a
+        ></strong
+      >
+      and is
+      <a
+        href="https://github.com/JoanaInacio/World-Clock-Project_Single-Location"
+        target="_blank"
+      >
+        open sourced on GitHub</a
+      >
+    </footer>
+
+    <script>
+      function updateTime() {
+        let lisbonElement = document.querySelector("#lisbon");
+        if (lisbonElement) {
+          let lisbonDateElement = lisbonElement.querySelector(".date");
+          let lisbonTimeElement = lisbonElement.querySelector(".time");
+          let lisbonTime = moment().tz("Europe/Lisbon");
+          lisbonDateElement.innerHTML = lisbonTime.format("MMMM Do YYYY");
+          lisbonTimeElement.innerHTML = lisbonTime.format(
+            "h:mm:ss [<small>]A[</small>]"
+          );
+        }
+
+        let parisElement = document.querySelector("#paris");
+        if (parisElement) {
+          let parisDateElement = parisElement.querySelector(".date");
+          let parisTimeElement = parisElement.querySelector(".time");
+          let parisTime = moment().tz("Europe/Paris");
+          parisDateElement.innerHTML = parisTime.format("MMMM Do YYYY");
+          parisTimeElement.innerHTML = parisTime.format(
+            "h:mm:ss [<small>]A[</small>]"
+          );
+        }
+      }
+
+      function updateCity(event) {
+        let cityTimeZone = event.target.value;
+        let cityName = "";
+
+        if (cityTimeZone === "current") {
+          cityTimeZone = moment.tz.guess();
+          cityName = "My current location";
+        } else if (cityTimeZone) {
+          let selectedOption = event.target.options[event.target.selectedIndex];
+          cityName = selectedOption.text;
+        }
+
+        if (cityTimeZone) {
+          let cityTime = moment().tz(cityTimeZone);
+          let citiesElement = document.querySelector("#cities");
+          citiesElement.innerHTML = `
+                    <div class="city">
+                        <div>
+                            <h2>${cityName}</h2>
+                            <div class="date">${cityTime.format(
+                              "MMMM Do YYYY"
+                            )}</div>
+                        </div>
+                        <div class="time">${cityTime.format(
+                          "h:mm:ss"
+                        )} <small>${cityTime.format("A")}</small></div>
+                    </div>
+                `;
+
+          setInterval(function () {
+            let updatedCityTime = moment().tz(cityTimeZone);
+            let timeElement = document.querySelector(".time");
+            let dateElement = document.querySelector(".date");
+            if (timeElement && dateElement) {
+              timeElement.innerHTML = `${updatedCityTime.format(
+                "h:mm:ss"
+              )} <small>${updatedCityTime.format("A")}</small>`;
+              dateElement.innerHTML = updatedCityTime.format("MMMM Do YYYY");
+            }
+          }, 1000);
+        }
+      }
+
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      let citiesSelectElement = document.querySelector("#city");
+      citiesSelectElement.addEventListener("change", updateCity);
+    </script>
+  </body>
+</html>
